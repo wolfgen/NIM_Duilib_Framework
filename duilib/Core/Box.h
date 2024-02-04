@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <shared_mutex>
+
 namespace ui 
 {
 
@@ -300,6 +302,7 @@ protected:
 	bool m_bDelayedDestroy;
 	bool m_bMouseChildEnabled;
 	std::vector<Control*> m_items;
+	std::shared_mutex m_mtxItems;
 	EventMap OnBubbledEvent;
 };
 

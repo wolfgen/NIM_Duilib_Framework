@@ -19,12 +19,13 @@ void ShowMsgBox(HWND hwnd, MsgboxCallback cb,
 
 class MsgBox : public ui::WindowImplBase
 {
+/*
 public:
 	friend void ShowMsgBox(HWND hwnd, MsgboxCallback cb,
         const std::wstring &content, bool content_is_id,
         const std::wstring &title, bool title_is_id,
         const std::wstring &yes, bool btn_yes_is_id,
-        const std::wstring &no, bool btn_no_is_id);
+        const std::wstring &no, bool btn_no_is_id);*/
 public:
 	MsgBox();
 	virtual ~MsgBox();
@@ -40,13 +41,17 @@ public:
 	virtual std::wstring GetWindowId() const /*override*/;
 	virtual UINT GetClassStyle() const override;
 	virtual void InitWindow() override;
+
+public:
+	void SetTitle(const std::wstring& str);
+	void SetContent(const std::wstring& str);
+	void SetButton(const std::wstring& yes, const std::wstring& no);
+	void Show(HWND hwnd, MsgboxCallback cb);
+
 private:
 	bool OnClicked(ui::EventArgs* msg);
 
-	void SetTitle(const std::wstring &str);
-	void SetContent(const std::wstring &str);
-	void SetButton(const std::wstring &yes, const std::wstring &no);
-	void Show(HWND hwnd, MsgboxCallback cb);
+
 
 	void EndMsgBox(MsgBoxRet ret);
 public:

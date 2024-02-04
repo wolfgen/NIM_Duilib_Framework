@@ -120,7 +120,7 @@ protected:
 template<typename InheritType>
 LabelTemplate<InheritType>::LabelTemplate() :
 	m_sFontId(),
-	m_uTextStyle(DT_LEFT | DT_TOP | DT_END_ELLIPSIS | DT_NOCLIP | DT_SINGLELINE),
+	m_uTextStyle(DT_LEFT | DT_TOP |  DT_NOCLIP | DT_SINGLELINE),
 	m_bSingleLine(true),
 	m_bLineLimit(false),
 	m_hAlign(DT_LEFT),
@@ -256,15 +256,15 @@ void LabelTemplate<InheritType>::SetAttribute(const std::wstring& strName, const
 {
 	if (strName == _T("align")) {
 		if (strValue.find(_T("left")) != std::wstring::npos) {
-			m_uTextStyle &= ~(DT_CENTER | DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			m_uTextStyle &= ~(DT_CENTER | DT_RIGHT | DT_SINGLELINE);
 			m_uTextStyle |= DT_LEFT;
 		}
-		if (strValue.find(_T("center")) != std::wstring::npos) {
+		if (strValue.find(_T("hcenter")) != std::wstring::npos) {
 			m_uTextStyle &= ~(DT_LEFT | DT_RIGHT);
 			m_uTextStyle |= DT_CENTER;
 		}
 		if (strValue.find(_T("right")) != std::wstring::npos) {
-			m_uTextStyle &= ~(DT_LEFT | DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			m_uTextStyle &= ~(DT_LEFT | DT_CENTER | DT_SINGLELINE);
 			m_uTextStyle |= DT_RIGHT;
 		}
 		if (strValue.find(_T("top")) != std::wstring::npos) {
@@ -273,16 +273,24 @@ void LabelTemplate<InheritType>::SetAttribute(const std::wstring& strName, const
 		}
 		if (strValue.find(_T("vcenter")) != std::wstring::npos) {
 			m_uTextStyle &= ~(DT_TOP | DT_BOTTOM);
-			m_uTextStyle |= (DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			m_uTextStyle |= (DT_VCENTER | DT_SINGLELINE);
 		}
 		if (strValue.find(_T("bottom")) != std::wstring::npos) {
-			m_uTextStyle &= ~(DT_TOP | DT_VCENTER | DT_VCENTER);
+			m_uTextStyle &= ~(DT_TOP | DT_VCENTER);
 			m_uTextStyle |= (DT_BOTTOM | DT_SINGLELINE);
 		}
 	}
 	else if (strName == _T("endellipsis")) {
-		if (strValue == _T("true")) m_uTextStyle |= DT_END_ELLIPSIS;
-		else m_uTextStyle &= ~DT_END_ELLIPSIS;
+		if (strValue == _T("true")) m_uTextStyle |= (DT_END_ELLIPSIS);
+		else m_uTextStyle &= ~ (DT_END_ELLIPSIS);
+	}
+	else if (strName == _T("pathellipsis")) {
+		if (strValue == _T("true")) m_uTextStyle |= (DT_PATH_ELLIPSIS);
+		else m_uTextStyle &= ~(DT_PATH_ELLIPSIS);
+	}
+	else if (strName == _T("wordellipsis")) {
+		if (strValue == _T("true")) m_uTextStyle |= (DT_WORD_ELLIPSIS);
+		else m_uTextStyle &= ~(DT_WORD_ELLIPSIS);
 	}
 	else if (strName == _T("linelimit")) SetLineLimit(strValue == _T("true"));
 	else if (strName == _T("singleline")) SetSingleLine(strValue == _T("true"));

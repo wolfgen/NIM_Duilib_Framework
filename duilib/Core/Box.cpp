@@ -215,6 +215,8 @@ Box::~Box()
 
 void Box::SetWindow(Window* pManager, Box* pParent, bool bInit)
 {
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		(*it)->SetWindow(pManager, this, bInit);
 	}
@@ -240,6 +242,9 @@ void Box::SetPos(UiRect rc)
 	rc.bottom -= m_pLayout->GetPadding().bottom;
 
 	CSize requiredSize;
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	if( m_items.size() == 0) {
 		requiredSize.cx = 0;
 		requiredSize.cy = 0;
@@ -339,6 +344,8 @@ void Box::PaintChild(IRenderContext* pRender, const UiRect& rcPaint)
 	UiRect rcTemp;
 	if( !::IntersectRect(&rcTemp, &rcPaint, &m_rcItem) ) return;
 
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		Control* pControl = *it;
 		if( !pControl->IsVisible() ) continue;
@@ -349,6 +356,9 @@ void Box::PaintChild(IRenderContext* pRender, const UiRect& rcPaint)
 void Box::SetVisible_(bool bVisible)
 {
 	__super::SetVisible_(bVisible);
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		(*it)->SetInternVisible(IsVisible());
 	}
@@ -359,6 +369,9 @@ void Box::SetVisible_(bool bVisible)
 void Box::SetInternVisible(bool bVisible)
 {
 	Control::SetInternVisible(bVisible);
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	if (m_items.empty()) return;
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		// 控制子控件显示状态
@@ -372,6 +385,10 @@ void Box::SetEnabled(bool bEnabled)
 	if (m_bEnabled == bEnabled) return;
 
 	Control::SetEnabled(bEnabled);
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
+
 	if (m_items.empty()) return;
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		(*it)->SetEnabled(bEnabled);
@@ -387,6 +404,8 @@ CSize Box::EstimateSize(CSize szAvailable)
 		if (!m_bReEstimateSize) {
 			return m_szEstimateSize;
 		}
+
+		std::shared_lock<std::shared_mutex> lck(m_mtxItems);
 
 		szAvailable.cx -= m_pLayout->GetPadding().left + m_pLayout->GetPadding().right;
 		szAvailable.cy -= m_pLayout->GetPadding().top + m_pLayout->GetPadding().bottom;
@@ -443,6 +462,8 @@ Control* Box::FindControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags, CPoin
 	rc.top += m_pLayout->GetPadding().top;
 	rc.right -= m_pLayout->GetPadding().right;
 	rc.bottom -= m_pLayout->GetPadding().bottom;
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
 
 	if ((uFlags & UIFIND_TOP_FIRST) != 0) {
 		for (int it = (int)m_items.size() - 1; it >= 0; it--) {
@@ -557,17 +578,24 @@ bool Box::Add(Control* pControl)
 {
 	if( pControl == NULL) return false;
 
+
 	if( m_pWindow != NULL ) m_pWindow->InitControls(pControl, this);
 	if( IsVisible() ) 
 		Arrange();
 	else
 		pControl->SetInternVisible(false);
+
+	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
+
 	m_items.push_back(pControl);   
+
 	return true;
 }
 
 bool Box::AddAt(Control* pControl, std::size_t iIndex)
 {
+	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
+
 	if( pControl == NULL) return false;
 	if( iIndex < 0 || iIndex > m_items.size() ) {
 		ASSERT(FALSE);
@@ -578,13 +606,17 @@ bool Box::AddAt(Control* pControl, std::size_t iIndex)
 		Arrange();
 	else 
 		pControl->SetInternVisible(false);
+
 	m_items.insert(m_items.begin() + iIndex, pControl);
+
 	return true;
 }
 
 bool Box::Remove(Control* pControl)
 {
 	if( pControl == NULL) return false;
+
+	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
 
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		if( *it == pControl ) {
@@ -602,16 +634,30 @@ bool Box::Remove(Control* pControl)
 
 bool Box::RemoveAt(std::size_t iIndex)
 {
-	Control* pControl = GetItemAt(iIndex);
-	if (pControl != NULL) {
-		return Box::Remove(pControl);
-	}
+	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
 
+	if (iIndex < 0 || iIndex >= m_items.size()) return false;
+
+	auto pControl = m_items[iIndex];
+
+	for (auto it = m_items.begin(); it != m_items.end(); it++) {
+		if (*it == pControl) {
+			Arrange();
+			if (m_bAutoDestroy) {
+				if (m_bDelayedDestroy && m_pWindow) m_pWindow->AddDelayedCleanup(pControl);
+				else delete pControl;
+			}
+			m_items.erase(it);
+			return true;
+		}
+	}
 	return false;
 }
 
 void Box::RemoveAll()
 {
+	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
+
 	if (m_bAutoDestroy) {
 		for (auto it = m_items.begin(); it != m_items.end(); it++) {
 			if( m_bDelayedDestroy && m_pWindow ) m_pWindow->AddDelayedCleanup((*it));             
@@ -628,6 +674,8 @@ void Box::SwapChild(Control* pChild1, Control* pChild2)
 	ASSERT(std::find(m_items.begin(), m_items.end(), pChild1) != m_items.end());
 	ASSERT(std::find(m_items.begin(), m_items.end(), pChild2) != m_items.end());
 
+	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
+
 	std::vector<Control*>::iterator it1, it2;
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		if (*it == pChild1 || *it == pChild2) {
@@ -641,6 +689,8 @@ void Box::SwapChild(Control* pChild1, Control* pChild2)
 void Box::ResetChildIndex(Control* pChild, std::size_t iIndex)
 {
 	ASSERT(std::find(m_items.begin(), m_items.end(), pChild) != m_items.end());
+
+	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
 
 	std::size_t oldIndex = 0;
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
@@ -714,6 +764,9 @@ UiRect Box::GetPaddingPos() const
 void Box::InvokeLoadImageCache()
 {
 	__super::InvokeLoadImageCache();
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		(*it)->InvokeLoadImageCache();
 	}
@@ -722,6 +775,9 @@ void Box::InvokeLoadImageCache()
 void Box::UnLoadImageCache()
 {
 	__super::UnLoadImageCache();
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		(*it)->UnLoadImageCache();
 	}
@@ -730,6 +786,9 @@ void Box::UnLoadImageCache()
 void Box::ClearImageCache()
 {
 	__super::ClearImageCache();
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		(*it)->ClearImageCache();
 	}
@@ -842,6 +901,9 @@ void ScrollableBox::SetPosInternally(UiRect rc)
 CSize ScrollableBox::CalcRequiredSize(const UiRect& rc)
 {
 	CSize requiredSize;
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	if (m_items.size() == 0) {
 		requiredSize.cx = 0;
 		requiredSize.cy = 0;
@@ -1012,6 +1074,8 @@ void ScrollableBox::PaintChild(IRenderContext* pRender, const UiRect& rcPaint)
 	UiRect rcTemp;
 	if( !::IntersectRect(&rcTemp, &rcPaint, &m_rcItem) ) return;
 
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
+
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		Control* pControl = *it;
 		if( !pControl->IsVisible() ) continue;
@@ -1155,6 +1219,8 @@ void ScrollableBox::LoadImageCache(bool bFromTopLeft)
 			pControl->InvokeLoadImageCache();
 		}
 	};
+
+	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
 
 	if (!bFromTopLeft) {
 		std::for_each(m_items.rbegin(), m_items.rend(), forEach);

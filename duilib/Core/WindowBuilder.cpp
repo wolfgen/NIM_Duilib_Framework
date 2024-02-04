@@ -30,10 +30,11 @@ Box* WindowBuilder::Create(STRINGorID xml, CreateControlCallback pCallback,
 				GlobalFree(hGlobal);
 				if (!m_xml.Load(string_resourse.c_str())) return NULL;
 			}
+/*
 			else
 			{
 				if (!m_xml.LoadFromFile(xml.m_lpstr)) return NULL;
-			}
+			}*/
 		}
 		else {
 			if (!m_xml.LoadFromFile(xml.m_lpstr)) return NULL;

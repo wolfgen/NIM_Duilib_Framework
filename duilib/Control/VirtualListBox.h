@@ -34,7 +34,7 @@ public:
 	 * @brief 获取子项总数
 	 * @return 返回子项总数
 	 */
-	virtual int GetElementtCount() = 0;
+	virtual int GetElementCount() = 0;
 };
 
 /**
@@ -78,6 +78,8 @@ public:
 	 * @return 无
 	 */
 	virtual void Refresh();
+
+	void RefreshItem(int nIndex);
 
 	/**
 	 * @brief 删除所有子项

@@ -188,7 +188,7 @@ void GlobalManager::RemoveAllClasss()
 }
 
 void GlobalManager::AddTextColor(const std::wstring& strName, const std::wstring& strValue)
-{
+{ 
 	std::wstring strColor = strValue.substr(1);
 	LPTSTR pstr = NULL;
 	DWORD dwBackColor = _tcstoul(strColor.c_str(), &pstr, 16);
@@ -348,7 +348,7 @@ TFontInfo* GlobalManager::GetTFontInfo(const std::wstring& strFontId)
 		ASSERT(!m_sDefaultFontId.empty());
 		strFindId = m_sDefaultFontId;
 	}
-
+	
 	auto iter = m_mCustomFonts.find(strFindId);
 	ASSERT(iter != m_mCustomFonts.end());
 
@@ -578,6 +578,10 @@ bool GlobalManager::OpenResZip(LPCTSTR  resource_name, LPCTSTR  resource_type, c
 	HRSRC   rsc = FindResource(NULL, resource_name, resource_type);
 	HGLOBAL resource = LoadResource(NULL, rsc);
 	DWORD   size = SizeofResource(NULL, rsc);
+
+	if (size == 0)
+		return false;
+
 	if (resource && size > 0)
 	{
 

@@ -69,6 +69,8 @@ void VirtualListBox::InitElement(int nMaxItemCount)
 
 void VirtualListBox::Refresh() 
 {
+    m_nMaxItemCount = m_pDataProvider->GetElementCount();
+
     int nElementCount = GetElementCount();
     int nItemCount = GetCount();
 
@@ -109,6 +111,15 @@ void VirtualListBox::Refresh()
 
         ReArrangeChild(true);
         Arrange();
+    }
+}
+
+void 
+VirtualListBox::RefreshItem(int nIndex)
+{
+    //if (IsElementDisplay(nIndex))
+    {
+        FillElement(m_items[nIndex], nIndex);
     }
 }
 
@@ -216,6 +227,8 @@ void VirtualListBox::ReArrangeChild(bool bForce)
 		// 向上滚动
 		int nDisplayCount = m_rcItem.GetHeight() / m_nElementHeight + 1;
 		int nHideCount = (int)m_items.size() - nDisplayCount;
+
+        if (nHideCount < 0) nHideCount = 0;
 
 		// 上半部分
 		UiRect rcItem = m_rcItem;
@@ -362,7 +375,7 @@ void VirtualListBox::FillElement(Control *pControl, int iIndex)
 int VirtualListBox::GetElementCount()
 {
 	if (m_pDataProvider)
-		return m_pDataProvider->GetElementtCount();
+		return m_pDataProvider->GetElementCount();
 
 	return 0;
 }
@@ -457,7 +470,7 @@ bool VirtualListBox::NeedReArrange(ScrollDirection &direction)
             return true;
         }
     }
- 
+
     return false;
 }
 

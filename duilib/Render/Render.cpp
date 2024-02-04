@@ -4,10 +4,12 @@ namespace ui {
 
 static inline void DrawFunction(HDC hDC, bool bTransparent, UiRect rcDest, HDC hdcSrc, UiRect rcSrc, bool bAlphaChannel, int uFade)
 {
+	BOOL b = FALSE;
+
 	if (bTransparent || bAlphaChannel || uFade < 255
 		|| (rcSrc.GetWidth() == rcDest.GetWidth() && rcSrc.GetHeight() == rcDest.GetHeight())) {
 		BLENDFUNCTION ftn = { AC_SRC_OVER, 0, uFade, AC_SRC_ALPHA };
-		::AlphaBlend(hDC, rcDest.left, rcDest.top, rcDest.GetWidth(), rcDest.GetHeight(),
+		b = ::AlphaBlend(hDC, rcDest.left, rcDest.top, rcDest.GetWidth(), rcDest.GetHeight(),
 			hdcSrc, rcSrc.left, rcSrc.top, rcSrc.GetWidth(), rcSrc.GetHeight(), ftn);
 	}
 	else {
@@ -513,6 +515,9 @@ void RenderContext_GdiPlus::DrawText(const UiRect& rc, const std::wstring& strTe
 	Gdiplus::StringFormat stringFormat = Gdiplus::StringFormat::GenericTypographic();
 	if ((uStyle & DT_END_ELLIPSIS) != 0) {
 		stringFormat.SetTrimming(Gdiplus::StringTrimmingEllipsisCharacter);
+	}
+	if ((uStyle & DT_PATH_ELLIPSIS) != 0) {
+		stringFormat.SetTrimming(Gdiplus::StringTrimmingEllipsisPath);
 	}
 
 	int formatFlags = 0;
