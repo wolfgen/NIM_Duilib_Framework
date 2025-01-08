@@ -208,7 +208,7 @@ public:
 	 * @param[in] strText 要设置的文本内容
 	 * @return 无
 	 */
-    void SetText(const std::wstring& strText);
+	virtual void SetText(const std::wstring& strText);
 
 	/**
 	 * @brief 设置控件的文本对应 ID
@@ -691,8 +691,8 @@ public:
 	void OnSetCursor(EventArgs& event);
 	void OnSetFocus(EventArgs& event);
 	void OnKillFocus(EventArgs& event);
-	void OnChar(EventArgs& event);
-	void OnKeyDown(EventArgs& event);
+	virtual void OnChar(EventArgs& event);
+	virtual void OnKeyDown(EventArgs& event);
 	void OnImeStartComposition(EventArgs& event);
 	void OnImeEndComposition(EventArgs& event);
 	void OnMouseMessage(UINT uMsg, EventArgs& event);

@@ -487,6 +487,7 @@ Control* WindowBuilder::CreateControlByClass(const std::wstring& strControlClass
 		break;
 	case 10:
 		//if( pstrClass == DUI_CTR_WEBBROWSER )					pControl = new WebBrowser;
+		if (strControlClass == DUI_CTR_NUMBEREDIT)               pControl = new NumberEdit;
 		break;
 	case 11:
 		if( strControlClass == DUI_CTR_TILELISTBOX )			pControl = new ListBox(new TileLayout);

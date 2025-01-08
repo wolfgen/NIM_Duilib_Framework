@@ -28,6 +28,7 @@
   * [Slider（滑动条）](Controls/Slider.md)
   * [ScrollBar（滚动条）](Controls/ScrollBar.md)
   * [RichEdit（富文本编辑）](Controls/RichEdit.md)
+  * [NumberEdit（数字文本框）](Controls/NumberEdit.md)
   * [CefControl（Cef 控件）](Controls/CefControl.md)
 * [盒子](ControlBox/README.md)
   * [ListContainerElement（列表项）](ControlBox/ListContainerElement.md)

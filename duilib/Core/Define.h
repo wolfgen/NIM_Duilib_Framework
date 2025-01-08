@@ -236,6 +236,7 @@ EventType StringToEnum(const std::wstring& messageType);
 #define  DUI_CTR_TREEVIEW                        (_T("TreeView"))
 
 #define  DUI_CTR_RICHEDIT                        (_T("RichEdit"))
+#define  DUI_CTR_NUMBEREDIT                      (_T("NumberEdit"))
 #define  DUI_CTR_COMBO                           (_T("Combo"))
 #define  DUI_CTR_SLIDER                          (_T("Slider"))
 #define  DUI_CTR_PROGRESS                        (_T("Progress"))
