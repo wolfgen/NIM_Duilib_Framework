@@ -562,7 +562,9 @@ namespace nim_comp {
 		param.wParam = eMenuCloseThis;
 		CMenuWnd::GetMenuObserver().RBroadcast(param);
 
-		m_pSubWindow->Init(L"submenu.xml", _T(""), CPoint(), CMenuWnd::RIGHT_BOTTOM, false, this);
+		POINT pt; GetCursorPos(&pt);
+		//m_pSubWindow->Init(L"submenu.xml", _T(""), CPoint(), CMenuWnd::RIGHT_BOTTOM, false, this);
+		m_pSubWindow->Init(L"submenu.xml", _T(""), pt, CMenuWnd::RIGHT_BOTTOM, false, this);
 	}
 
 } // namespace ui
