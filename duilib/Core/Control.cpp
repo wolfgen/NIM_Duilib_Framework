@@ -43,7 +43,8 @@ Control::Control() :
 	m_animationManager(),
 	m_imageMap(),
 	m_bkImage(),
-	m_loadBkImageWeakFlag()
+	m_loadBkImageWeakFlag(),
+	m_bReleaseByCreator(false)
 {
 	m_colorMap.SetControl(this);
 	m_imageMap.SetControl(this);

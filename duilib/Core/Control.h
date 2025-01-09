@@ -854,6 +854,16 @@ public:
 	 */
 	void DetachEvent(EventType type);
 
+	bool GetReleaseByCreator()
+	{
+		return m_bReleaseByCreator;
+	}
+
+	void SetReleaseByCreator(bool bFlag = true)
+	{
+		m_bReleaseByCreator = bFlag;
+	}
+
 protected:
 	friend WindowBuilder;
 	void AttachXmlEvent(EventType eventType, const EventCallback& callback) { OnXmlEvent[eventType] += callback; }
@@ -922,6 +932,8 @@ protected:
 	AnimationManager m_animationManager;
 	nbase::WeakCallbackFlag m_loadBkImageWeakFlag;
 	static const int m_nVirtualEventGifStop;
+
+	bool m_bReleaseByCreator;
 };
 
 } // namespace ui

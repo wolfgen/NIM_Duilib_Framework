@@ -621,7 +621,8 @@ bool Box::Remove(Control* pControl)
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		if( *it == pControl ) {
 			Arrange();
-			if( m_bAutoDestroy ) {
+			if( m_bAutoDestroy && (*it)->GetReleaseByCreator() == false)
+			{
 				if( m_bDelayedDestroy && m_pWindow ) m_pWindow->AddDelayedCleanup(pControl);             
 				else delete pControl;
 			}
@@ -643,7 +644,8 @@ bool Box::RemoveAt(std::size_t iIndex)
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		if (*it == pControl) {
 			Arrange();
-			if (m_bAutoDestroy) {
+			if (m_bAutoDestroy && (*it)->GetReleaseByCreator() == false) 
+			{
 				if (m_bDelayedDestroy && m_pWindow) m_pWindow->AddDelayedCleanup(pControl);
 				else delete pControl;
 			}
@@ -659,7 +661,10 @@ void Box::RemoveAll()
 	std::unique_lock<std::shared_mutex> lck(m_mtxItems);
 
 	if (m_bAutoDestroy) {
-		for (auto it = m_items.begin(); it != m_items.end(); it++) {
+		for (auto it = m_items.begin(); it != m_items.end(); it++) 
+		{
+			if ((*it)->GetReleaseByCreator()) continue;
+
 			if( m_bDelayedDestroy && m_pWindow ) m_pWindow->AddDelayedCleanup((*it));             
 			else delete (*it);
 		}
