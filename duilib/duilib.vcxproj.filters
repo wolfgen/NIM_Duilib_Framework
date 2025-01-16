@@ -185,6 +185,9 @@
     <ClCompile Include="Control\NumberEdit.cpp">
       <Filter>Source Files\Control</Filter>
     </ClCompile>
+    <ClCompile Include="Control\VirtualTileBox.cpp">
+      <Filter>Source Files\Control</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -347,6 +350,9 @@
       <Filter>Header Files\Control</Filter>
     </ClInclude>
     <ClInclude Include="Control\NumberEdit.h">
+      <Filter>Header Files\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\VirtualTileBox.h">
       <Filter>Header Files\Control</Filter>
     </ClInclude>
   </ItemGroup>
