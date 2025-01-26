@@ -473,7 +473,7 @@ namespace ui
 		int nElementPos = CalcElementsHeight(iIndex);
 		if (nElementPos >= nPos) {
 			int nHeight = this->GetHeight();
-			if (nElementPos + GetRealElementHeight() <= nPos + nHeight)
+			if (nElementPos - GetRealElementHeight() <= nPos + nHeight)
 				return true;
 		}
 
@@ -560,7 +560,7 @@ namespace ui
 		for (auto i = nStartIndex; i <= nEndIndex; i++)
 		{
 			int nItemIndex = ElementIndexToItemIndex(nStartIndex);
-			if (nItemIndex >= 0) {
+			if (nItemIndex >= 0 && nItemIndex < m_items.size()) {
 				FillElement(m_items[nItemIndex], i);
 			}
 		}
