@@ -93,6 +93,8 @@ namespace ui
 		*/
 		virtual void RemoveAll() override;
 
+		virtual bool SelectItem(int iIndex, bool bTakeFocus = false, bool bTrigger = true) override;
+
 		/**
 		* @brief 设置是否强制重新布局
 		* @param[in] bForce 设置为 true 为强制，否则为不强制
@@ -174,6 +176,11 @@ namespace ui
 		*/
 		int GetElementCount();
 
+		int GetSelectedElementIndex()
+		{
+			return m_nSelectedElementIndex;
+		}
+
 		/**
 		* @brief 得到n个元素对应的高度和，
 		* @param[in] nCount 要得到多少元素的高度，-1表示全部元素
@@ -226,5 +233,7 @@ namespace ui
 		bool m_bForceArrange;	// 强制布局标记
 
 		std::shared_mutex m_mtx;
+
+		int m_nSelectedElementIndex{ -1 };
 	};
 }

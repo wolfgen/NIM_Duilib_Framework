@@ -138,7 +138,9 @@ namespace ui
 		int nTopBottom = 0;
 		int nTopIndex = pList->GetTopElementIndex(nTopBottom);
 
-		int iCount = 0;
+		int iCount = 0, _iSelectedItemIndex = -2;
+
+		pList->SelectItem(-2, false, false);
 
 		for (auto pControl : pList->m_items)
 		{
@@ -155,6 +157,9 @@ namespace ui
 				if (pControl->IsVisible()) pControl->SetVisible(false);
 			}
 
+			if (pList->GetSelectedElementIndex() == nElementIndex)
+				_iSelectedItemIndex = iCount;
+				
 			if ((++iCount % m_nColumns) == 0) {
 				ptTile.x = iPosLeft;
 				ptTile.y += m_szItem.cy + m_iChildMargin;
@@ -163,6 +168,8 @@ namespace ui
 				ptTile.x += rcTile.GetWidth() + m_iChildMargin;
 			}
 		}
+
+		pList->SelectItem(_iSelectedItemIndex);
 	}
 
 	int
@@ -405,6 +412,17 @@ namespace ui
 
 			Refresh();
 		}
+	}
+
+	bool 
+		VirtualTileBox::SelectItem(int iIndex, 
+								   bool bTakeFocus /*= false*/, 
+								   bool bTrigger /*= true*/)
+	{
+		if (iIndex != -2)
+			m_nSelectedElementIndex = ItemIndexToElementIndex(iIndex);
+
+		return __super::SelectItem(iIndex, bTakeFocus, bTrigger);
 	}
 
 	void

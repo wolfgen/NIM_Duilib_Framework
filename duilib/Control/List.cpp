@@ -117,7 +117,7 @@ bool ListBox::SelectItem(int iIndex, bool bTakeFocus, bool bTrigger)
 
 	if (GetItemAt(m_iCurSel)) {
 		UiRect rcItem = GetItemAt(m_iCurSel)->GetPos();
-		EnsureVisible(rcItem);
+		//EnsureVisible(rcItem);
 	}
 
 	if (bTakeFocus) pControl->SetFocus();
