@@ -663,7 +663,11 @@ void Box::RemoveAll()
 	if (m_bAutoDestroy) {
 		for (auto it = m_items.begin(); it != m_items.end(); it++) 
 		{
-			if ((*it)->GetReleaseByCreator()) continue;
+			if ((*it)->GetReleaseByCreator())
+			{
+				(*it)->SetWindow(NULL, NULL);
+				continue;
+			}
 
 			if( m_bDelayedDestroy && m_pWindow ) m_pWindow->AddDelayedCleanup((*it));             
 			else delete (*it);
