@@ -12,7 +12,7 @@ namespace ui
 		public nbase::SupportWeakCallback
 	{
 	public:
-		VirtualTileInterface();
+		VirtualTileInterface() noexcept;
 		/**
 		* @brief 创建一个子项
 		* @return 返回创建后的子项指针
@@ -60,6 +60,7 @@ namespace ui
 
 	private:
 		bool m_bAutoCalcColumn;
+		std::shared_mutex m_mtx;
 	};
 
 	class UILIB_API VirtualTileBox : public ui::ListBox
@@ -231,8 +232,6 @@ namespace ui
 		int m_nOldYScrollPos;
 		bool m_bArrangedOnce;
 		bool m_bForceArrange;	// 强制布局标记
-
-		std::shared_mutex m_mtx;
 
 		int m_nSelectedElementIndex{ -1 };
 	};

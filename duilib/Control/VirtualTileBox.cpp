@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "VirtualTileBox.h"
 
-
+#include <atltrace.h>
 namespace ui
 {
 
-	VirtualTileInterface::VirtualTileInterface() :
+	VirtualTileInterface::VirtualTileInterface() noexcept :
 		m_CountChangedNotify(),
 		m_DataChangedNotify()
 	{
@@ -122,21 +122,23 @@ namespace ui
 	void
 		VirtualTileLayout::LazyArrangeChild()
 	{
+		std::unique_lock<std::shared_mutex> lck(m_mtx);
+
 		VirtualTileBox* pList = dynamic_cast<VirtualTileBox*>(m_pOwner);
 
 		ASSERT(pList);
 		ASSERT(m_nColumns);
 
-		ui::UiRect rc = pList->GetPaddingPos();
+		const ui::UiRect rc = pList->GetPaddingPos();
 
-		int iPosLeft = rc.left;
+		const int iPosLeft = rc.left;
 
-		int iPosTop = rc.top + pList->GetScrollPos().cy / GetElementsHeight(0) * GetElementsHeight(0);
+		const int iPosTop = rc.top + pList->GetScrollPos().cy / GetElementsHeight(0) * GetElementsHeight(0);
 
 		ui::CPoint ptTile(iPosLeft, iPosTop);
 
 		int nTopBottom = 0;
-		int nTopIndex = pList->GetTopElementIndex(nTopBottom);
+		const int nTopIndex = pList->GetTopElementIndex(nTopBottom);
 
 		int iCount = 0, _iSelectedItemIndex = -2;
 
@@ -147,7 +149,7 @@ namespace ui
 			ui::UiRect rcTile(ptTile.x, ptTile.y, ptTile.x + m_szItem.cx, ptTile.y + m_szItem.cy);
 			pControl->SetPos(rcTile);
 
-			int nElementIndex = nTopIndex + iCount;
+			const int nElementIndex = nTopIndex + iCount;
 			if (nElementIndex < pList->GetElementCount())
 			{
 				if (!pControl->IsVisible()) pControl->SetVisible(true);
@@ -175,7 +177,7 @@ namespace ui
 	int
 		VirtualTileLayout::AjustMaxItem()
 	{
-		ui::UiRect rc = m_pOwner->GetPaddingPos();
+		const ui::UiRect rc = m_pOwner->GetPaddingPos();
 
 		if (m_bAutoCalcColumn)
 		{
@@ -183,8 +185,8 @@ namespace ui
 			if (m_nColumns == 0) m_nColumns = 1;
 		}
 
-		int nHeight = m_szItem.cy + m_iChildMargin;
-		int nRow = (rc.bottom - rc.top) / nHeight + 1;
+		const int nHeight = m_szItem.cy + m_iChildMargin;
+		const int nRow = (rc.bottom - rc.top) / nHeight + 1;
 		return nRow * m_nColumns;
 	}
 
@@ -196,7 +198,7 @@ namespace ui
 		, m_bArrangedOnce(false)
 		, m_bForceArrange(false)
 	{
-
+		m_items.reserve(20);
 
 	}
 
@@ -227,8 +229,8 @@ namespace ui
 	{
 		m_nMaxItemCount = GetTileLayout()->AjustMaxItem();
 
-		int nElementCount = GetElementCount();
-		int nItemCount = GetCount();
+		const int nElementCount = GetElementCount();
+		const int nItemCount = GetCount();
 
 		if (nItemCount > nElementCount)
 		{
@@ -257,9 +259,7 @@ namespace ui
 		if (nElementCount <= 0)
 			return;
 
-		ReArrangeChild(true);
-		Arrange();
-
+		ReArrangeChild(false);	
 	}
 
 	void
@@ -344,10 +344,13 @@ namespace ui
 	void
 		VirtualTileBox::SetScrollPos(ui::CSize szPos)
 	{
-		m_nOldYScrollPos = GetScrollPos().cy;
-		ListBox::SetScrollPos(szPos);
+		if (m_nOldYScrollPos != szPos.cy)
+		{
+			m_nOldYScrollPos = GetScrollPos().cy;
+			ListBox::SetScrollPos(szPos);
 
-		ReArrangeChild(false);
+			ReArrangeChild(false);
+		}
 	}
 
 	void
@@ -433,6 +436,7 @@ namespace ui
 			if (!NeedReArrange(direction))
 				return;
 		}
+
 
 		LazyArrangeChild();
 	}
@@ -587,6 +591,17 @@ namespace ui
 	void
 		VirtualTileBox::OnModelCountChanged()
 	{
+		UiRect rc = m_pVerticalScrollBar->GetPos();
+		UiRect rcRaw = rc;
+
+		rc.left += m_pLayout->GetPadding().left;
+		rc.top += m_pLayout->GetPadding().top;
+		rc.right -= m_pLayout->GetPadding().right;
+		rc.bottom -= m_pLayout->GetPadding().bottom;
+
+		CSize requiredSize = CalcRequiredSize(rc);
+		ProcessVScrollBar(rcRaw, requiredSize.cy);
+
 		Refresh();
 	}
 
