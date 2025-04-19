@@ -106,7 +106,7 @@ CSize TileLayout::ArrangeChild(const std::vector<Control*>& items, UiRect rc)
 	return size;
 }
 
-CSize TileLayout::AjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable)
+CSize TileLayout::AdjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable)
 {
 	CSize size = m_pOwner->Control::EstimateSize(szAvailable);
 	size.cy = 0;

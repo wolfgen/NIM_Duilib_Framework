@@ -105,7 +105,7 @@ CSize HLayout::ArrangeChild(const std::vector<Control*>& items, UiRect rc)
 	return size;
 }
 
-CSize HLayout::AjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable)
+CSize HLayout::AdjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable)
 {
 	CSize totalSize;
 	CSize itemSize;

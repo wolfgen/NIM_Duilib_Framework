@@ -52,7 +52,7 @@ public:
 	 * @param[in] szAvailable 子控件允许的最大宽度
 	 * @return 返回排列后最终盒子的宽度和高度信息
 	 */
-	virtual CSize AjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable);
+	virtual CSize AdjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable);
 
 	/**
 	 * @brief 获取内边距

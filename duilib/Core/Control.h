@@ -261,6 +261,7 @@ public:
 	 * @return 无
 	 */
 	virtual void SetToolTipText(const std::wstring& strText);
+	virtual void SetToolTipText2(const std::wstring& strText);
 
 	/**
 	 * @brief 设置鼠标悬浮到控件显示的提示文本（UTF8 格式）

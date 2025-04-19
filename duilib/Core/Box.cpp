@@ -125,7 +125,7 @@ CSize Layout::ArrangeChild(const std::vector<Control*>& items, UiRect rc)
 	return size;
 }
 
-CSize Layout::AjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable)
+CSize Layout::AdjustSizeByChild(const std::vector<Control*>& items, CSize szAvailable)
 {
 	CSize maxSize(-9999, -9999);
 	CSize itemSize;
@@ -409,7 +409,7 @@ CSize Box::EstimateSize(CSize szAvailable)
 
 		szAvailable.cx -= m_pLayout->GetPadding().left + m_pLayout->GetPadding().right;
 		szAvailable.cy -= m_pLayout->GetPadding().top + m_pLayout->GetPadding().bottom;
-		CSize sizeByChild = m_pLayout->AjustSizeByChild(m_items, szAvailable);
+		CSize sizeByChild = m_pLayout->AdjustSizeByChild(m_items, szAvailable);
 		if (GetFixedWidth() == DUI_LENGTH_AUTO) {
 			fixedSize.cx = sizeByChild.cx;
 		}

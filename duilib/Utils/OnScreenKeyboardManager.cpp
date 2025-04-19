@@ -2,6 +2,7 @@
 #include "OnScreenKeyboardManager.h"
 #include <initguid.h>
 #include <shlobj.h>
+#include <shellapi.h>
 
 namespace ui
 {

@@ -1,11 +1,12 @@
 #include "stdafx.h"
+#include "base/base.h"
 #include "VirtualTileBox.h"
-
 #include <atltrace.h>
+
 namespace ui
 {
 
-	VirtualTileInterface::VirtualTileInterface() noexcept :
+	VirtualTileInterface::VirtualTileInterface() :
 		m_CountChangedNotify(),
 		m_DataChangedNotify()
 	{
@@ -40,6 +41,8 @@ namespace ui
 		VirtualTileLayout::ArrangeChild(const std::vector<ui::Control*>& items,
 										ui::UiRect rc)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		ui::CSize sz(rc.GetWidth(), rc.GetHeight());
 
 		VirtualTileBox* pList = dynamic_cast<VirtualTileBox*>(m_pOwner);
@@ -53,9 +56,11 @@ namespace ui
 	}
 
 	ui::CSize
-		VirtualTileLayout::AjustSizeByChild(const std::vector<ui::Control*>& items,
+		VirtualTileLayout::AdjustSizeByChild(const std::vector<ui::Control*>& items,
 											ui::CSize szAvailable)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		VirtualTileBox* pList = dynamic_cast<VirtualTileBox*>(m_pOwner);
 		ASSERT(pList);
 
@@ -93,6 +98,8 @@ namespace ui
 	int
 		VirtualTileLayout::GetElementsHeight(int nCount)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		if (nCount < m_nColumns && nCount != -1) return m_szItem.cy + m_iChildMargin;
 
 		VirtualTileBox* pList = dynamic_cast<VirtualTileBox*>(m_pOwner);
@@ -122,23 +129,24 @@ namespace ui
 	void
 		VirtualTileLayout::LazyArrangeChild()
 	{
-		std::unique_lock<std::shared_mutex> lck(m_mtx);
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
 
 		VirtualTileBox* pList = dynamic_cast<VirtualTileBox*>(m_pOwner);
 
 		ASSERT(pList);
 		ASSERT(m_nColumns);
 
-		const ui::UiRect rc = pList->GetPaddingPos();
 
-		const int iPosLeft = rc.left;
+		ui::UiRect rc = pList->GetPaddingPos();
 
-		const int iPosTop = rc.top + pList->GetScrollPos().cy / GetElementsHeight(0) * GetElementsHeight(0);
+		int iPosLeft = rc.left;
+
+		int iPosTop = rc.top + pList->GetScrollPos().cy / GetElementsHeight(0) * GetElementsHeight(0);
 
 		ui::CPoint ptTile(iPosLeft, iPosTop);
 
 		int nTopBottom = 0;
-		const int nTopIndex = pList->GetTopElementIndex(nTopBottom);
+		int nTopIndex = pList->GetTopElementIndex(nTopBottom);
 
 		int iCount = 0, _iSelectedItemIndex = -2;
 
@@ -149,11 +157,16 @@ namespace ui
 			ui::UiRect rcTile(ptTile.x, ptTile.y, ptTile.x + m_szItem.cx, ptTile.y + m_szItem.cy);
 			pControl->SetPos(rcTile);
 
-			const int nElementIndex = nTopIndex + iCount;
+			int nElementIndex = nTopIndex + iCount;
 			if (nElementIndex < pList->GetElementCount())
 			{
 				if (!pControl->IsVisible()) pControl->SetVisible(true);
-				pList->FillElement(pControl, nElementIndex);
+/*
+				nbase::ThreadManager::PostTask(0, [pList, pControl, nElementIndex]()
+											  {*/
+												   pList->FillElement(pControl, nElementIndex);
+											 // });
+				//
 			}
 			else {
 				if (pControl->IsVisible()) pControl->SetVisible(false);
@@ -175,9 +188,11 @@ namespace ui
 	}
 
 	int
-		VirtualTileLayout::AjustMaxItem()
+		VirtualTileLayout::AdjustMaxItem()
 	{
-		const ui::UiRect rc = m_pOwner->GetPaddingPos();
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
+		ui::UiRect rc = m_pOwner->GetPaddingPos();
 
 		if (m_bAutoCalcColumn)
 		{
@@ -185,8 +200,8 @@ namespace ui
 			if (m_nColumns == 0) m_nColumns = 1;
 		}
 
-		const int nHeight = m_szItem.cy + m_iChildMargin;
-		const int nRow = (rc.bottom - rc.top) / nHeight + 1;
+		int nHeight = m_szItem.cy + m_iChildMargin;
+		int nRow = (rc.bottom - rc.top) / nHeight + 1;
 		return nRow * m_nColumns;
 	}
 
@@ -198,7 +213,7 @@ namespace ui
 		, m_bArrangedOnce(false)
 		, m_bForceArrange(false)
 	{
-		m_items.reserve(20);
+
 
 	}
 
@@ -227,10 +242,12 @@ namespace ui
 	void
 		VirtualTileBox::Refresh()
 	{
-		m_nMaxItemCount = GetTileLayout()->AjustMaxItem();
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
 
-		const int nElementCount = GetElementCount();
-		const int nItemCount = GetCount();
+		m_nMaxItemCount = GetTileLayout()->AdjustMaxItem();
+
+		int nElementCount = GetElementCount();
+		int nItemCount = GetCount();
 
 		if (nItemCount > nElementCount)
 		{
@@ -259,12 +276,16 @@ namespace ui
 		if (nElementCount <= 0)
 			return;
 
-		ReArrangeChild(false);	
+		ReArrangeChild(false);
+		Arrange();
+
 	}
 
 	void
 		VirtualTileBox::RemoveAll()
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		__super::RemoveAll();
 
 		if (m_pVerticalScrollBar)
@@ -284,6 +305,8 @@ namespace ui
 	void
 		VirtualTileBox::GetDisplayCollection(std::vector<int>& collection)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		collection.clear();
 
 		if (GetCount() == 0)
@@ -307,6 +330,8 @@ namespace ui
 	void
 		VirtualTileBox::EnsureVisible(int iIndex, bool bToTop /*= false*/)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		if (iIndex < 0 || iIndex >= GetElementCount())
 			return;
 
@@ -343,14 +368,13 @@ namespace ui
 
 	void
 		VirtualTileBox::SetScrollPos(ui::CSize szPos)
-	{
-		if (m_nOldYScrollPos != szPos.cy)
-		{
-			m_nOldYScrollPos = GetScrollPos().cy;
-			ListBox::SetScrollPos(szPos);
+	{	
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
 
-			ReArrangeChild(false);
-		}
+		m_nOldYScrollPos = GetScrollPos().cy;
+		ListBox::SetScrollPos(szPos);
+
+		ReArrangeChild(false);
 	}
 
 	void
@@ -405,6 +429,8 @@ namespace ui
 	void
 		VirtualTileBox::SetPos(ui::UiRect rc)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		bool bChange = false;
 		if (!m_rcItem.Equal(rc))
 			bChange = true;
@@ -413,7 +439,22 @@ namespace ui
 
 		if (bChange) {
 
-			Refresh();
+			//Refresh();
+
+
+			ULONGLONG ullTimeStamp = static_cast<ULONGLONG>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+
+			if (m_bRefreshPending.load() == false)
+			{
+				ATLTRACE(L"VirtualTileBox::SetPos() -- Refresh called at %lld\n", ullTimeStamp);
+				m_bRefreshPending.store(true);
+				::PostMessage(this->GetWindow()->GetHWND(), NIMDUI_WM_VIRTUALBOX_REFRESH, (WPARAM)this, 0);
+				//Arrange();			
+			}
+			else
+			{
+				//ATLTRACE(L"VirtualTileBox::SetPos() --  Refresh pending at %lld\n", ullTimeStamp);
+			}
 		}
 	}
 
@@ -422,6 +463,8 @@ namespace ui
 								   bool bTakeFocus /*= false*/, 
 								   bool bTrigger /*= true*/)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		if (iIndex != -2)
 			m_nSelectedElementIndex = ItemIndexToElementIndex(iIndex);
 
@@ -431,12 +474,13 @@ namespace ui
 	void
 		VirtualTileBox::ReArrangeChild(bool bForce)
 	{
+		//assert(nbase::ThreadManager::CurrentThread() != nullptr);
+
 		ScrollDirection direction = kScrollUp;
 		if (!bForce && !m_bForceArrange) {
 			if (!NeedReArrange(direction))
 				return;
 		}
-
 
 		LazyArrangeChild();
 	}
@@ -582,6 +626,7 @@ namespace ui
 		for (auto i = nStartIndex; i <= nEndIndex; i++)
 		{
 			int nItemIndex = ElementIndexToItemIndex(nStartIndex);
+
 			if (nItemIndex >= 0 && nItemIndex < m_items.size()) {
 				FillElement(m_items[nItemIndex], i);
 			}
@@ -591,18 +636,22 @@ namespace ui
 	void
 		VirtualTileBox::OnModelCountChanged()
 	{
-		UiRect rc = m_pVerticalScrollBar->GetPos();
-		UiRect rcRaw = rc;
 
-		rc.left += m_pLayout->GetPadding().left;
-		rc.top += m_pLayout->GetPadding().top;
-		rc.right -= m_pLayout->GetPadding().right;
-		rc.bottom -= m_pLayout->GetPadding().bottom;
+		ULONGLONG ullTimeStamp = static_cast<ULONGLONG>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 
-		CSize requiredSize = CalcRequiredSize(rc);
-		ProcessVScrollBar(rcRaw, requiredSize.cy);
+		if (m_bRefreshPending.load() == false)
+		{
+			ATLTRACE(L"Refresh called at %lld\n", ullTimeStamp);
+			m_bRefreshPending.store(true);
+			::PostMessage(this->GetWindow()->GetHWND(), NIMDUI_WM_VIRTUALBOX_REFRESH, (WPARAM)this, 0);
+			//Arrange();			
+		}
+		else
+		{
+			//ATLTRACE(L"Refresh pending at %lld\n", ullTimeStamp);
+		}
 
-		Refresh();
+		//Refresh();
 	}
 
 	int

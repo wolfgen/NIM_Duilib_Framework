@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 
+#include <mmiscapi2.h>
+
 namespace ui 
 {
 

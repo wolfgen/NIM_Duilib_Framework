@@ -177,8 +177,6 @@ bool ListBox::ButtonDown(EventArgs& msg)
 
 bool ListBox::ScrollItemToTop(const std::wstring& strItemName)
 {
-	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
-
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		if ((*it)->GetName() == strItemName) {
 			if (GetScrollRange().cy != 0) {
@@ -203,8 +201,6 @@ bool ListBox::ScrollItemToTop(const std::wstring& strItemName)
 
 Control* ListBox::GetTopItem()
 {
-	std::shared_lock<std::shared_mutex> lck(m_mtxItems);
-
 	int listTop = GetPos().top + m_pLayout->GetPadding().top + GetScrollPos().cy;
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		if ((*it)->IsVisible() && !(*it)->IsFloat() && (*it)->GetPos().bottom >= listTop) {

@@ -5,6 +5,10 @@
 typedef std::function<void(int nStartIndex, int nEndIndex)> DataChangedNotify;
 typedef std::function<void()> CountChangedNotify;
 
+#ifndef NIMDUI_WM_VIRTUALBOX_REFRESH
+#define NIMDUI_WM_VIRTUALBOX_REFRESH (WM_USER + 3001)
+#endif
+
 namespace ui
 {
 
@@ -12,7 +16,7 @@ namespace ui
 		public nbase::SupportWeakCallback
 	{
 	public:
-		VirtualTileInterface() noexcept;
+		VirtualTileInterface();
 		/**
 		* @brief 创建一个子项
 		* @return 返回创建后的子项指针
@@ -52,15 +56,14 @@ namespace ui
 	public:
 		VirtualTileLayout();
 		virtual ui::CSize ArrangeChild(const std::vector<ui::Control*>& items, ui::UiRect rc) override;
-		virtual ui::CSize AjustSizeByChild(const std::vector<ui::Control*>& items, ui::CSize szAvailable) override;
+		virtual ui::CSize AdjustSizeByChild(const std::vector<ui::Control*>& items, ui::CSize szAvailable) override;
 		virtual bool SetAttribute(const std::wstring& strName, const std::wstring& strValue) override;
 		virtual int GetElementsHeight(int nCount);
 		virtual void LazyArrangeChild();
-		virtual int AjustMaxItem();
+		virtual int AdjustMaxItem();
 
 	private:
 		bool m_bAutoCalcColumn;
-		std::shared_mutex m_mtx;
 	};
 
 	class UILIB_API VirtualTileBox : public ui::ListBox
@@ -121,6 +124,12 @@ namespace ui
 		void SetItemSize(ui::CSize sz)
 		{
 			dynamic_cast<VirtualTileLayout*>(m_pLayout.get())->SetItemSize(sz);
+		}
+
+
+		void SetPendingRefresh(bool bPending)
+		{
+			m_bRefreshPending.store(bPending);
 		}
 
 	protected:
@@ -233,6 +242,11 @@ namespace ui
 		bool m_bArrangedOnce;
 		bool m_bForceArrange;	// 强制布局标记
 
+		std::shared_mutex m_mtxRefresh;
+
 		int m_nSelectedElementIndex{ -1 };
+
+		std::atomic_bool m_bRefreshPending{ false };
+
 	};
 }

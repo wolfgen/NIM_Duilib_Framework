@@ -16,8 +16,13 @@ public:
 	virtual std::wstring GetText() const;
 	virtual std::string GetUTF8Text() const;
 	virtual void SetText(const std::wstring& strText);
+	virtual void SetText2(const std::wstring& strText)
+	{
+		m_sText = strText;
+	}
 	virtual void SetUTF8Text(const std::string& strText);
 	virtual void SetTextId(const std::wstring& strTextId);
+	virtual void SetTextId2(const std::wstring& strTextId);
 	virtual void SetUTF8TextId(const std::string& strTextId);
 	virtual bool HasHotState();
 	virtual CSize EstimateText(CSize szAvailable, bool& bReEstimateSize) override;
@@ -117,6 +122,8 @@ protected:
 	StateColorMap	m_textColorMap;
 };
 
+
+
 template<typename InheritType>
 LabelTemplate<InheritType>::LabelTemplate() :
 	m_sFontId(),
@@ -175,6 +182,7 @@ void LabelTemplate<InheritType>::SetText(const std::wstring& strText)
 	}
 }
 
+
 template<typename InheritType>
 void LabelTemplate<InheritType>::SetUTF8Text(const std::string& strText)
 {
@@ -195,6 +203,13 @@ void LabelTemplate<InheritType>::SetTextId(const std::wstring& strTextId)
 	else {
 		this->Invalidate();
 	}
+}
+
+template<typename InheritType /*= Control*/>
+void ui::LabelTemplate<InheritType>::SetTextId2(const std::wstring& strTextId)
+{
+	if (m_sTextId == strTextId) return;
+	m_sTextId = strTextId;
 }
 
 template<typename InheritType>

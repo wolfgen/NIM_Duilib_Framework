@@ -365,6 +365,13 @@ void Control::SetToolTipText(const std::wstring& strText)
 	Invalidate();
 }
 
+void Control::SetToolTipText2(const std::wstring& strText)
+{
+	std::wstring strTemp(strText);
+	StringHelper::ReplaceAll(_T("<n>"), _T("\r\n"), strTemp);
+	m_sToolTipText = strTemp;
+}
+
 void Control::SetUTF8ToolTipText(const std::string& strText)
 {
 	std::wstring strOut;
