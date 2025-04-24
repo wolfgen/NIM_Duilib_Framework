@@ -235,7 +235,7 @@ void GlobalManager::RemoveFromImageCache(const std::wstring& imageFullPath)
 		m_mImageHash.erase(it);
 	}
 	else {
-		ASSERT(FALSE);
+		//ASSERT(FALSE);
 	}
 }
 

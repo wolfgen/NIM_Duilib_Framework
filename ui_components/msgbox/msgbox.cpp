@@ -39,7 +39,7 @@ std::wstring MsgBox::GetSkinFolder()
 
 std::wstring MsgBox::GetSkinFile()
 {
-	return L"msgbox.xml";
+	return L"../../default/msgbox/msgbox.xml";
 }
 
 std::wstring MsgBox::GetZIPFileName() const

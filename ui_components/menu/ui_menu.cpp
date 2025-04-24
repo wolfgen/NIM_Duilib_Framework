@@ -564,7 +564,7 @@ namespace nim_comp {
 
 		POINT pt; GetCursorPos(&pt);
 		//m_pSubWindow->Init(L"submenu.xml", _T(""), CPoint(), CMenuWnd::RIGHT_BOTTOM, false, this);
-		m_pSubWindow->Init(L"submenu.xml", _T(""), pt, CMenuWnd::RIGHT_BOTTOM, false, this);
+		m_pSubWindow->Init(L"../../default/menu/submenu.xml", _T(""), pt, CMenuWnd::RIGHT_BOTTOM, false, this);
 	}
 
 } // namespace ui
