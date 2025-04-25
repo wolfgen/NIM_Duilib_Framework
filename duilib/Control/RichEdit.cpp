@@ -1330,8 +1330,8 @@ ui::VerAlignType RichEdit::GetTextVerAlignType()
 
 void RichEdit::SetTextColor(const std::wstring& dwTextColor)
 {
-	if(m_sCurrentColor == dwTextColor)
-		return;
+	//if(m_sCurrentColor == dwTextColor)
+	//	return;
 	m_sCurrentColor = dwTextColor;
 
 	DWORD dwTextColor2 = GlobalManager::GetTextColor(dwTextColor);
